@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Page Title</title>
+
+<!  <link rel="stylesheet" type="text/css" href="styles/login.css"> >
+
+
+</head>
+
+<body>
+  <div class="login-page">
+    <div class="form">
+      <form class="register-form">
+        <input type="text" placeholder="username" id="registerUsernameInput" />
+        <input type="password" placeholder="password" id="registerPasswordInput" suggested: "current-password"/>
+        <button id='createButton'>create</button>
+        <p class="message">Already registered? <a href="#">Sign In</a></p>
+      </form>
+      <form class="login-form">
+        <input type="text" placeholder="username" id="loginUsernameInput"/>
+        <input type="password" placeholder="password" id="loginPasswordInput" suggested: "current-password"/>
+        <button id="loginButton">login</button>
+        <p class="message">Not registered? <a href="#">Create an account</a></p>
+      </form>
+    </div>
+  </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="../scripts/login.js" type="text/javascript"></script>
+
+</body>
+
+
+</html>
