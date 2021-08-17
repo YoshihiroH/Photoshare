@@ -36,6 +36,14 @@ $(document).ready(function () {
     }
   }
 
+  //Conversion to base64 for html <img>
+  function toBase64(arr) {
+    arr = new Uint8Array(arr)
+    return btoa(
+      arr.reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+  }
+
   //Housekeeping function
   //eraseCookieFromAllPaths("id");
 
@@ -61,13 +69,6 @@ $(document).ready(function () {
       contentType: false,
       success: function (data) {
         for (var i = 0; i < data.length; i++) {
-          //Conversion to base64 for html <img>
-          function toBase64(arr) {
-            arr = new Uint8Array(arr)
-            return btoa(
-              arr.reduce((data, byte) => data + String.fromCharCode(byte), '')
-            );
-          }
           var imageView = $(`<div class='imageView'></div>`);
           var uploadDate = data[i].DATE.substring(0, 10);
           imageView.append($(`<p>${data[i].TITLE} ${uploadDate}</p>`))
@@ -161,7 +162,9 @@ $(document).ready(function () {
   //Hide search modal
   $('#searchModalCloseButton').click(function(){
     $('#searchModalView').toggle('slow');
+    $('#userPreviewView').hide('fast');
     $('#searchForm')[0].reset();
+    $('#userPreviewView').empty();
   });
 
  //Event handler to send image and image details to server
@@ -177,7 +180,28 @@ $(document).ready(function () {
     processData: false,
     contentType: false,
     success: function (data) {
-      
+      console.log(data);
+      var sum = 0;
+      for (var i = 0; i < data.length; i++) {
+        if(id != data[i].USER_ID){
+          var userPreview = $('<div class="userPreview"></div>');
+          try{
+            var iconView = $('<div class="iconView"></div>');
+            iconView.append($('<img class="icon">', {
+              src: `data:image/png;base64,${toBase64( data[i].avatar['data'])}`
+            }));
+            userPreview.append(iconView);
+          } catch (err){
+            userPreview.append('<div class="iconView"><img class="icon" src="/assets/avatar-placeholder.jpeg"></div>')
+          }
+          userPreview.append(`<p class="userPreviewUsername">${data[i].USERNAME}</p>`)
+          $('#userPreviewView').append(userPreview);
+          sum++;
+        }
+      }
+      if(sum > 0){
+        $("#userPreviewView").show("slow");
+      }
     },
     error: function (data){
     }
