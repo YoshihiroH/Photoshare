@@ -1,8 +1,5 @@
 Logs/
-SQLiteDatabaseBrowserPortable/
 node_modules/
-Server/node_modules/
-Server/users.db
-Server/package.json
-Server/package-lock.json
-
+Server/.env
+package-lock.json
+.idea/
