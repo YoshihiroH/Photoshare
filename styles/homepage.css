@@ -46,6 +46,23 @@ img {
   /* Black w/ opacity */
 }
 
+.header{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header > div{
+  width: calc(100%/3);
+}
+
+@media (max-width: 768px){
+  .header-section > div {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
 #uploadView {
   position: relative;
   z-index: 1;

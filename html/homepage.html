@@ -4,8 +4,21 @@
 <head>
   <title>Home</title>
   <link rel="stylesheet" type="text/css" href="../styles/homepage.css">
-  <button id="logoutButton">Logout</button>
-  <button id="uploadButton">Upload</button>
+
+  <div class="header">
+    <div class="logoutView">
+      <button id="logoutButton">Logout</button>
+    </div>
+    <div class="uploadView">
+      <button id="uploadButton">Upload</button>
+    </div>
+    <div class="searchView">
+      <button id="searchButton">Search</button>
+    </div>
+  </div>
+
+
+
   <div id="uploadModalView" hidden data-closeable>
     <div id="uploadView">
       <button id="uploadModalCloseButton"class="close-button" aria-label="Close alert" type="button" data-close>
@@ -37,10 +50,14 @@
     <button id="nextButton">Next</button>
 
   </div>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="../scripts/homepage.js" type="text/javascript"></script>
 
 </body>
+<footer>
 
+</footer>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../scripts/homepage.js" type="text/javascript"></script>
 
 </html>
