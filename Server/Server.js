@@ -40,14 +40,10 @@ let closedb = () => {
   });
 }
 
-
-
-
 function hashCode(str) {
   return str.split('').reduce((prevHash, currVal) =>
     (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);
 }
-
 
 app.use(cors());
 app.use(express.json()) // for parsing application/json
@@ -69,8 +65,7 @@ app.route("/")
     console.log("GET received on /");
     res.send('GET request to homepage');
     next();
-  })
-
+  });
 
 /*
 Credential verification POST request handler
@@ -79,12 +74,10 @@ returns user id if user has been successfully created returns 0 otherwise
 app.route("/user")
   .post(function (req, res, next) {
     console.log("POST recieved to /user");
-
     let credentials = req.body;
     let sql = `SELECT USER_ID
       FROM users
       WHERE USERNAME = "${credentials.user}"`;
-
     //execute querys
     pool.query(sql, (err, row) => {
       if (err) {
@@ -97,13 +90,11 @@ app.route("/user")
         let sql = `SELECT USER_ID
           FROM credentials
           WHERE PASSWORD = "${credentials.password}"`;
-        
         pool.query(sql, function(err, row){
           if(err){
             res.status(500).send(err);
             console.error(err.message);
           } 
-
           if(row.length){
             console.log("Password Matched : Returning User ID");
             res.json(row[0].USER_ID);
@@ -111,15 +102,11 @@ app.route("/user")
             console.log("Password not matching");
             res.json(0);
           }
-          
         });
-        
       } else {
         console.log("User not found");
         res.json(0);
       }
-
-
     })
   });
 
@@ -133,8 +120,8 @@ app.route("/createUser")
     let credentials = req.body;
     let userId = hashCode(credentials.user);
     let sql = `SELECT USER_ID
-    FROM users
-    WHERE USER_ID = "${userId}"`;
+      FROM users
+     WHERE USER_ID = "${userId}"`;
     pool.query(sql, (err, row) => {
       if (err) {
         res.status(500).send(err);
@@ -142,14 +129,15 @@ app.route("/createUser")
       }
       if (row[0] == undefined) {
         console.log("User not found : Creating new user");
-        let sql = `INSERT INTO users(USER_ID, PASSWORD)
-          VALUES (${userId},"${credentials.password}")`;
+        let sql = `INSERT INTO users(USER_ID, USERNAME)
+          VALUES (${userId},"${credentials.user}")`;
         pool.query(sql, (err) => {
           if (err) {
             return console.error(err.message);
           } else {
-            let sql = `INSERT INTO users(USER_ID, USERNAME)
-              VALUES (${userId},"${credentials.user}")`;
+            console.log("Saving Credentials");
+            let sql = `INSERT INTO credentials(USER_ID, PASSWORD)
+              VALUES (${userId},"${credentials.password}")`;
             pool.query(sql, function(err) {
               if(err){
                 return console.error(err.message);
@@ -187,14 +175,10 @@ app.route("/uploadImage")
         res.status(500).send(err);
         return console.error(err.message);
       }
-
-      
-      
       console.log("Upload successful");
       res.send("Success");
     });
   });
-
 
 /*
 Image download Get request handler
@@ -203,10 +187,10 @@ app.route('/userImages')
   .post(function(req, res, next){
     console.log('GET recieved to /userImages');
     let sql = `SELECT * 
-    FROM photos 
-    LEFT OUTER JOIN users ON photos.USER_ID=users.USER_ID 
-    ORDER BY DATE 
-    DESC LIMIT ${req.body['INDEX']},3;`
+      FROM photos 
+      LEFT OUTER JOIN users ON photos.USER_ID=users.USER_ID 
+      ORDER BY DATE 
+      DESC LIMIT ${req.body['INDEX']},3;`
     pool.query(sql ,(err,row) => {
       if (err) {
         res.status(500).send(err);
@@ -217,9 +201,24 @@ app.route('/userImages')
     });
   });
 
-
-
-
+/*
+User search get request handler
+*/
+app.route('/userSearch')
+  .post(function(req, res, next){
+    console.log("GET recieved to /userSearch");
+    let sql = `SELECT * 
+      FROM users
+      WHERE soundex(username) = soundex("${req.body['username']}")`;
+    pool.query(sql, function(err,row) {
+      if(err){
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
 
 var server = app.listen(3000);
 console.log("Listening...");

@@ -164,7 +164,26 @@ $(document).ready(function () {
     $('#searchForm')[0].reset();
   });
 
-  
+ //Event handler to send image and image details to server
+ $("#searchSubmitButton").click((event) => {
+  event.preventDefault();
+  var search = $('#searchText').val();
+  var formData = new FormData();
+  formData.append('username', search);
+  $.ajax({
+    url: `${API_URL}/userSearch`,
+    type: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function (data) {
+      
+    },
+    error: function (data){
+    }
+  });
+});
+
 
   //Homepage event handler
 
