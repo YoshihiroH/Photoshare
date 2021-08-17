@@ -20,6 +20,8 @@ var imageIndex;
 
 $(document).ready(function () {
 
+
+  //Helper  
   function eraseCookieFromAllPaths(name) {
     // This function will attempt to remove a cookie from all paths.
     var pathBits = location.pathname.split('/');
@@ -37,12 +39,14 @@ $(document).ready(function () {
   //Housekeeping function
   //eraseCookieFromAllPaths("id");
 
+  //Homepage Loading Handlers
+
+  //ID getter from cookies
   let id = getCookie("id");
   console.log(id);
   if (id == null) {
     window.location.replace(`${CURRENT_PATH}/html/index.html`);
   }
-
 
   //Request for Users uploads by index
   function userImages(index) {
@@ -57,8 +61,6 @@ $(document).ready(function () {
       contentType: false,
       success: function (data) {
         for (var i = 0; i < data.length; i++) {
-
-
           //Conversion to base64 for html <img>
           function toBase64(arr) {
             arr = new Uint8Array(arr)
@@ -74,12 +76,12 @@ $(document).ready(function () {
           }));
           imageView.append($(`<p>By ${data[i].USERNAME}</p>`));
           $('.feedView').append(imageView);
-
         }
       }
     });
   }
 
+  //Logout Button Handler
   $("#logoutButton").click(function (event) {
     event.preventDefault();
     document.cookie = "id=; path=/; expires=Thu, 01-Jan-1970 00:00:01 GMT;"
@@ -88,13 +90,17 @@ $(document).ready(function () {
 
 
 
+  //Upload Modal Event Handlers
+
+  //Show upload modal
   $("#uploadButton").click((event) => {
     if($('#uploadForm').is(':hidden')){
       $('#uploadForm').show('slow');
     }
     $('#uploadModalView').toggle('slow');
-    
   });
+
+  //Hide upload modal
   $('#uploadModalCloseButton').click(function(){
     $('#uploadModalView').toggle('slow');
     $('#uploadSuccessMessage').hide('slow');
@@ -104,17 +110,16 @@ $(document).ready(function () {
     $('#imagePreview').hide('fast');
     $('#imagePreview').attr('src', null);
   });
+
+  //Upload preview update
   $('#uploadImage').change(function(event){
     if($('#uploadImage')[0].files[0] != 0){
       $('#imagePreview').show('fast');
       $('#imagePreview').attr('src', URL.createObjectURL($('#uploadImage')[0].files[0]));
-
     }
   })
 
-
-  // Event handler to send image and image details to server
-
+  //Event handler to send image and image details to server
   $("#uploadSubmitButton").click((event) => {
     event.preventDefault();
     var uploadImage = $('#uploadImage')[0].files[0];
@@ -146,15 +151,14 @@ $(document).ready(function () {
 
 
 
+
+  //Homepage event handler
+
+  //request more user images
   $("#nextButton").click((event) => {
     event.preventDefault();
     userImages(imageIndex = imageIndex + 3);
   })
-
-
-
-
-
 
   //request users recent images
   userImages(imageIndex = 0);
