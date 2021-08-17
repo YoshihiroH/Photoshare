@@ -1,5 +1,4 @@
 Logs/
 node_modules/
 Server/.env
-package-lock.json
 .idea/
