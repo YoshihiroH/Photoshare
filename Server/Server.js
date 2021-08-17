@@ -81,10 +81,9 @@ app.route("/user")
     console.log("POST recieved to /user");
 
     let credentials = req.body;
-    let sql = `SELECT USER_ID, USERNAME, PASSWORD
-    FROM users
-    WHERE USERNAME = "${credentials.user}"
-    AND  PASSWORD  = "${credentials.password}"`;
+    let sql = `SELECT USER_ID
+      FROM users
+      WHERE USERNAME = "${credentials.user}"`;
 
     //execute querys
     pool.query(sql, (err, row) => {
@@ -93,11 +92,30 @@ app.route("/user")
         return console.error(err.message);
       }
       if(row.length){
-        console.log("User found : Returning User ID");
+        console.log("User found : confirming pasword");
         console.log(row[0].USER_ID);
-  
-        res.json(row[0].USER_ID);
+        let sql = `SELECT USER_ID
+          FROM credentials
+          WHERE PASSWORD = "${credentials.password}"`;
+        
+        pool.query(sql, function(err, row){
+          if(err){
+            res.status(500).send(err);
+            console.error(err.message);
+          } 
+
+          if(row.length){
+            console.log("Password Matched : Returning User ID");
+            res.json(row[0].USER_ID);
+          } else {
+            console.log("Password not matching");
+            res.json(0);
+          }
+          
+        });
+        
       } else {
+        console.log("User not found");
         res.json(0);
       }
 
@@ -124,11 +142,19 @@ app.route("/createUser")
       }
       if (row[0] == undefined) {
         console.log("User not found : Creating new user");
-        let sql = `INSERT INTO users(USER_ID, USERNAME, PASSWORD)
-        VALUES (${userId}, "${credentials.user}", "${credentials.password}")`;
+        let sql = `INSERT INTO users(USER_ID, PASSWORD)
+          VALUES (${userId},"${credentials.password}")`;
         pool.query(sql, (err) => {
           if (err) {
             return console.error(err.message);
+          } else {
+            let sql = `INSERT INTO users(USER_ID, USERNAME)
+              VALUES (${userId},"${credentials.user}")`;
+            pool.query(sql, function(err) {
+              if(err){
+                return console.error(err.message);
+              }
+            });
           }
         });
         res.json(userId);

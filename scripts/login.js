@@ -67,8 +67,6 @@ $(document).ready(function() {
     console.log('/user');
     $.post(`${API_URL}/user`, credentials, function(data, status) {
       
-     // console.log(data);
-     // console.log(status);
       if (data == EMPTY) {
         $(".error").remove();
         $(".login-form").append('<p class="error">Account does not exist or password is incorrect</p>');
