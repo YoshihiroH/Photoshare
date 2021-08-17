@@ -96,7 +96,7 @@ $(document).ready(function () {
   $("#uploadButton").click((event) => {
     if($('#uploadForm').is(':hidden')){
       $('#uploadForm').show('slow');
-    }
+    } 
     $('#uploadModalView').toggle('slow');
   });
 
@@ -147,10 +147,24 @@ $(document).ready(function () {
     });
   });
 
+  //Search Modal Handlers
 
+  //Show search modal
+  $("#searchButton").click((event) => {
+    if($('#searchModalView').is(':hidden')){
+      $('#searchModalView').show('slow');
+    } else {
+      $('#searchModalView').toggle('slow');
+    }
+  });
 
+  //Hide search modal
+  $('#searchModalCloseButton').click(function(){
+    $('#searchModalView').toggle('slow');
+    $('#searchForm')[0].reset();
+  });
 
-
+  
 
   //Homepage event handler
 

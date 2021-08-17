@@ -5,6 +5,7 @@
   <title>Home</title>
   <link rel="stylesheet" type="text/css" href="../styles/homepage.css">
 
+  <!-- Header Sections -->
   <div class="header">
     <div class="logoutView">
       <button id="logoutButton">Logout</button>
@@ -17,18 +18,19 @@
     </div>
   </div>
 
-
-
-  <div id="uploadModalView" hidden data-closeable>
+  <!-- Upload Modal -->
+  <div id="uploadModalView" class="modal" hidden data-closeable>
     <div id="uploadView">
-      <button id="uploadModalCloseButton"class="close-button" aria-label="Close alert" type="button" data-close>
+      <button id="uploadModalCloseButton" class="modal-close-button" aria-label="Close alert" type="button" data-close>
         <span aria-hidden="true">&times;</span>
       </button>
-      <form encType="multipart/form-data" id="uploadForm">
+      <form encType="multipart/form-data"  class="modal-form" id="uploadForm">
         <img id='imagePreview'/>
+        <label for="uploadImage">Choose your picture!</label>
         <input type="file" id="uploadImage" name="uploadImage" accept="image/*"> 
-        <input type="text" id="uploadTitle" name="uploadTitle" placeholder="Name your picture!">
-        <input type="submit" id="uploadSubmitButton">
+        <label for="uploadTitle">Name your picture!</label>
+        <input type="text" id="uploadTitle" name="uploadTitle">
+        <button id="uploadSubmitButton">Submit</button>
       </form>
       <span id="uploadSuccessMessage" hidden>Upload Successful!</span>
       <span id="uploadErrorMessage" hidden>Error encountered while uploading
@@ -36,6 +38,28 @@
       </span>
     </div>
   </div>
+
+  <!-- Search Modal -->
+  <div id="searchModalView" class="modal" hidden data-closeable>
+    <div id="searchView">
+      <button id="searchModalCloseButton" class="modal-close-button" aria-label="Close alert" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <form encType="multipart/form-data" class="modal-form" id="searchForm">
+        <label for="searchText">Search for user</label>
+        <input type="search" id="searchtext" name="user">
+        <button>Search</button>
+      </form>
+      <div id="userPreview" hidden></div>
+    </div>
+  </div>
+
+
+
+
+
+
+
 </head>
 
 <body>
