@@ -3,15 +3,39 @@
 
 <head>
   <title>Home</title>
-
-  <! <link rel="stylesheet" type="text/css" href="styles/login.css"> >
-
-
+  <link rel="stylesheet" type="text/css" href="../styles/homepage.css">
+  <button id="logoutButton">Logout</button>
+  <button id="uploadButton">Upload</button>
+  <div id="uploadModalView" hidden data-closeable>
+    <div id="uploadView">
+      <button id="uploadModalCloseButton"class="close-button" aria-label="Close alert" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <form encType="multipart/form-data" id="uploadForm">
+        <img id='imagePreview'/>
+        <input type="file" id="uploadImage" name="uploadImage" accept="image/*"> 
+        <input type="text" id="uploadTitle" name="uploadTitle" placeholder="Name your picture!">
+        <input type="submit" id="uploadSubmitButton">
+      </form>
+      <span id="uploadSuccessMessage" hidden>Upload Successful!</span>
+      <span id="uploadErrorMessage" hidden>Error encountered while uploading
+        <p id="uploadError"></p>
+      </span>
+    </div>
+  </div>
 </head>
 
 <body>
+  
   <div class="home-page">
-    <button id="logoutButton">Logout</button>
+
+
+    <div class="feedView">
+
+    </div>
+
+    <button id="nextButton">Next</button>
+
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="../scripts/homepage.js" type="text/javascript"></script>

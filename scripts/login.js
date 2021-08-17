@@ -9,17 +9,19 @@ function getCookie(key) {
     return keyValue ? keyValue[2] : null;
 }
 let EMPTY = "";
-let CURRENT_PATH = "http://192.168.2.12:5000";
+let CURRENT_PATH = "http://localhost:5000";
 let API_URL = "http://127.0.0.1:3000";
 
 $(document).ready(function() {
 
   let id = getCookie("id");
+  console.log(id);
   if(id != null){
     window.location.replace(`${CURRENT_PATH}/html/homepage.html`);
   }
 
-  $('.message a').click(function() {
+  $('.message a').click(function(event) {
+    event.preventDefault();
     $('form').animate({
       height: "toggle",
       opacity: "toggle"
@@ -27,8 +29,8 @@ $(document).ready(function() {
     console.log(document.getElementById("createButton"));
   });
 
-  $('#createButton').click(function() {
-
+  $('#createButton').click(function(event) {
+    event.preventDefault();
     let user = $("#registerUsernameInput").val();
     let password = hashCode($("#registerPasswordInput").val());
 
@@ -50,11 +52,10 @@ $(document).ready(function() {
       $(".error").remove();
       $(".register-form").append('<p class="error">Invalid Username</p>');
     }
-    return false;
   });
 
-  $('#loginButton').click(function() {
-
+  $('#loginButton').click(function(event) {
+    event.preventDefault();
     let user = $("#loginUsernameInput").val();
     let password = hashCode($("#loginPasswordInput").val());
     $("#passwordInput").val(EMPTY);
@@ -63,17 +64,20 @@ $(document).ready(function() {
       user: user,
       password: password
     }
-
+    console.log('/user');
     $.post(`${API_URL}/user`, credentials, function(data, status) {
+      
+     // console.log(data);
+     // console.log(status);
       if (data == EMPTY) {
         $(".error").remove();
         $(".login-form").append('<p class="error">Account does not exist or password is incorrect</p>');
       } else {
+
         document.cookie = "id="+data + ";path=/";
         window.location.replace(`${CURRENT_PATH}/html/homepage.html`);
       }
     })
-    return false;
   });
 
 
