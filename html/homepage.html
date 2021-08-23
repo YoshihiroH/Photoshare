@@ -7,14 +7,20 @@
 
   <!-- Header Sections -->
   <div class="header">
-    <div class="logoutView">
-      <button id="logoutButton">Logout</button>
+    <div class="logoutHeader">
+      <button id="logoutHeaderButton">Logout</button>
     </div>
-    <div class="uploadView">
-      <button id="uploadButton">Upload</button>
+    <div class="uploadHeader">
+      <button id="uploadHeaderButton">Upload</button>
     </div>
-    <div class="searchView">
-      <button id="searchButton">Search</button>
+    <div class="homeHeader" hidden>
+      <button id="homeHeaderButton">Home</button>
+    </div>
+    <div class="profileHeader">
+      <button id="profileHeaderButton">My Profile</button>
+    </div>
+    <div class="searchHeader">
+      <button id="searchHeaderButton">Search</button>
     </div>
   </div>
 
@@ -31,6 +37,12 @@
         <label for="uploadTitle">Name your picture!</label>
         <input type="text" id="uploadTitle" name="uploadTitle">
         <button id="uploadSubmitButton">Submit</button>
+      </form>
+      <form encType="multipart/form-data"  class="modal-form" id="uploadAvatarForm" hidden>
+        <img id='avatarPreview'/>
+        <label for="uploadAvatar">Choose your picture!</label>
+        <input type="file" id="uploadAvatar" name="uploadAvatar" accept="image/*"> 
+        <button id="uploadAvatarSubmitButton">Submit</button>
       </form>
       <span id="uploadSuccessMessage" hidden>Upload Successful!</span>
       <span id="uploadErrorMessage" hidden>Error encountered while uploading
@@ -66,15 +78,20 @@
 <body>
   
   <div class="home-page">
-
-
-    <div class="feedView">
-
-    </div>
-
+    <div class="feedView"></div>
     <button id="nextButton">Next</button>
-
   </div>
+  <div class="profile-page" hidden>
+    <div class="profileView">
+      <div class="avatarView">
+        <img id="avatar"></img>
+      </div>
+      <div class="detailsView">
+        <h1 id="usernameLabel"></h1>
+      </div>
+    </div>
+  </div>
+
 
 </body>
 <footer>

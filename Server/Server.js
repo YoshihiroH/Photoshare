@@ -153,7 +153,7 @@ app.route("/createUser")
   });
 
 /*
-Image uplaod POST request handler
+Image upload POST request handler
 */
 app.route("/uploadImage")
   .post(function (req, res, next){
@@ -181,7 +181,32 @@ app.route("/uploadImage")
   });
 
 /*
-Image download Get request handler
+Avatar upload POST request Handler
+*/
+app.route('/uploadAvatar')
+  .post(function(req, res, next){
+    if(!req.files || Object.keys(req.files).lenghth === 0 ){
+      console.log("File not received");
+      return res.status(400).send();
+    }
+    let buffer = Buffer.from(req.files['data']['data']);
+    let arraybuffer = Uint8Array.from(buffer).buffer;
+    var sql = `UPDATE users SET ? WHERE USER_ID=${req.body['USER_ID']}`, values = {
+      avatar:buffer
+    };
+    pool.query(sql,values,(err) =>{
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log("Upload successful");
+      res.send("Success");
+    });
+  });
+
+
+/*
+Image download POST request handler
 */
 app.route('/userImages')
   .post(function(req, res, next){
@@ -202,14 +227,27 @@ app.route('/userImages')
   });
 
 /*
-User search get request handler
+User search POST request handler
 */
 app.route('/userSearch')
   .post(function(req, res, next){
     console.log("GET recieved to /userSearch");
-    let sql = `SELECT * 
-      FROM users
-      WHERE soundex(username) = soundex("${req.body['username']}")`;
+    let sql= '';
+    if(req.body['by_ID'] == 0){
+      if(req.body['exact_match'] == 0){
+        sql = `SELECT * 
+          FROM users
+          WHERE soundex(username) = soundex("${req.body['username']}")`;
+      } else {
+        lsql = `SELECT * 
+          FROM users
+          WHERE username="${req.body['username']}"`;
+      }
+    } else{
+      sql = `SELECT * 
+          FROM users
+          WHERE USER_ID = "${req.body['USER_ID']}"`;
+    }
     pool.query(sql, function(err,row) {
       if(err){
         res.status(500).send(err);

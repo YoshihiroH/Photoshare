@@ -52,7 +52,7 @@ img {
 }
 
 .header > div{
-  width: calc(100%/3);
+  width: calc(100%/4);
 }
 
 @media (max-width: 768px){
@@ -93,7 +93,31 @@ img {
   
 }
 
+.profileView {
+  display: table;
+  clear: both;
+  padding:10%;
+}
 
+.avatarView{
+  float:left;
+  width:30%;
+  height: 100%;
+  max-width: 200px;
+  max-height: 200px;
+}
+#avatarButton {
+  max-width: 200px;
+}
+
+.detailsView{
+  float: left;
+  width: 70%;
+  height: 100%;
+}
+#usernameLabel {
+  text-align: right;
+}
 
 #uploadView {
   position: relative;
