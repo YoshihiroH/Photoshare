@@ -198,6 +198,57 @@ $(document).ready(function () {
     $('#userPreviewView').empty();
   });
 
+
+  //User preview click handler
+  let userPreviewOnClick = function (event) {
+    console.log($(this).find('p').html())
+    var formData = new FormData();
+    formData.append('username', $(this).find('p').html());
+    formData.append('exact_match', 1);
+    formData.append('by_ID', 0);
+    $.ajax({
+      url: `${API_URL}/userSearch`,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+        $('.profileHeader').hide(0, function () {
+          $('.homeHeader').show(0);
+        });
+        $('.home-page').hide("slow", function () {
+          try {
+            $('#avatar').attr('src', `data:image/png;base64,${toBase64( data[0].avatar['data'])}`);
+          } catch (err) {
+            $('#avatar').attr('src', "/assets/avatar-placeholder.jpeg");
+          }
+          $('#avatarButton').remove();
+          if (!$('#avatarButton').length) {
+            if (id == data[0].USER_ID) {
+              $('.profileView').append('<button id="avatarButton">Change Profile Picture</button>');
+              $('#avatarButton').click(function (event) {
+                $('#uploadForm').hide('fast', function () {
+                  $('#uploadAvatarForm').show('fast', function () {
+                    $('#uploadModalView').show('slow');
+                  });
+                });
+              });
+            }
+          }
+
+
+          $('#usernameLabel').text(data[0].USERNAME);
+          $('.profile-page').show("slow");
+        });
+      },
+      error: function (data) {}
+    });
+    $('#searchModalView').toggle('slow');
+    $('#userPreviewView').hide('fast');
+    $('#searchForm')[0].reset();
+    $('#userPreviewView').empty();
+  }
+
   //Event handler to search for users
   $("#searchSubmitButton").click((event) => {
     $('#userPreviewView').hide('fast');
@@ -224,13 +275,14 @@ $(document).ready(function () {
             try {
               var iconView = $('<div class="iconView"></div>');
               var icon = $('<img class="icon">');
-              icon.attr('src',`data:image/png;base64,${toBase64( data[i].avatar['data'])}`);
+              icon.attr('src', `data:image/png;base64,${toBase64( data[i].avatar['data'])}`);
               iconView.append(icon);
               userPreview.append(iconView);
             } catch (err) {
               userPreview.append('<div class="iconView"><img class="icon" src="/assets/avatar-placeholder.jpeg"></div>')
             }
             userPreview.append(`<p class="userPreviewUsername">${data[i].USERNAME}</p>`)
+            userPreview.click(userPreviewOnClick);
             $('#userPreviewView').append(userPreview);
             sum++;
           }
@@ -256,7 +308,7 @@ $(document).ready(function () {
       processData: false,
       contentType: false,
       success: function (data) {
-        $('.profileHeader').hide(0, function(){
+        $('.profileHeader').hide(0, function () {
           $('.homeHeader').show(0);
         });
         $('.home-page').hide("slow", function () {
@@ -285,10 +337,10 @@ $(document).ready(function () {
     });
   });
   // Profile Return to home page event handler
-  $('#homeHeaderButton').click(function(event){
-    $('.homeHeader').hide(0, function(){
-      $('.profileHeader').show(0, function(){
-        $('.profile-page').hide('fast',function(){
+  $('#homeHeaderButton').click(function (event) {
+    $('.homeHeader').hide(0, function () {
+      $('.profileHeader').show(0, function () {
+        $('.profile-page').hide('fast', function () {
           $('.home-page').show('slow');
         });
       });

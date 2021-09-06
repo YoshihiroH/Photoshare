@@ -89,7 +89,8 @@ app.route("/user")
         console.log(row[0].USER_ID);
         let sql = `SELECT USER_ID
           FROM credentials
-          WHERE PASSWORD = "${credentials.password}"`;
+          WHERE PASSWORD = "${credentials.password}"
+          AND USER_ID =${row[0].USER_ID}`;
         pool.query(sql, function(err, row){
           if(err){
             res.status(500).send(err);
@@ -239,7 +240,7 @@ app.route('/userSearch')
           FROM users
           WHERE soundex(username) = soundex("${req.body['username']}")`;
       } else {
-        lsql = `SELECT * 
+        sql = `SELECT * 
           FROM users
           WHERE username="${req.body['username']}"`;
       }
