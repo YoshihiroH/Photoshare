@@ -211,7 +211,7 @@ Image download POST request handler
 */
 app.route('/userImages')
   .post(function(req, res, next){
-    console.log('GET recieved to /userImages');
+    console.log('POST recieved to /userImages');
     let sql = `SELECT * 
       FROM photos 
       LEFT OUTER JOIN users ON photos.USER_ID=users.USER_ID 
@@ -232,7 +232,7 @@ User search POST request handler
 */
 app.route('/userSearch')
   .post(function(req, res, next){
-    console.log("GET recieved to /userSearch");
+    console.log("POST recieved to /userSearch");
     let sql= '';
     if(req.body['by_ID'] == 0){
       if(req.body['exact_match'] == 0){
@@ -259,5 +259,24 @@ app.route('/userSearch')
     });
   });
 
+/*
+User Friends POST request handler
+*/
+app.route('/userFriends')
+  .post(function(req, res, next){
+    console.log('POST recieved to /userFriends');
+    let sql = `SELECT * 
+      FROM users
+      WHERE RequesterID = ${req.body['USER_ID']}
+      AND Status = 1`;
+    pool.query(sql, function(err,row) {
+      if(err){
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
 var server = app.listen(3000);
 console.log("Listening...");
