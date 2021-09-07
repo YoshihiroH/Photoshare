@@ -73,7 +73,7 @@ returns user id if user has been successfully created returns 0 otherwise
 */
 app.route("/user")
   .post(function (req, res, next) {
-    console.log("POST recieved to /user");
+    console.log("POST received to /user");
     let credentials = req.body;
     let sql = `SELECT USER_ID
       FROM users
@@ -117,7 +117,7 @@ returns user id if user has been successfully created returns 0 otherwise
 */
 app.route("/createUser")
   .post(function (req, res, next) {
-    console.log("POST recieved to /createUser");
+    console.log("POST received to /createUser");
     let credentials = req.body;
     let userId = hashCode(credentials.user);
     let sql = `SELECT USER_ID
@@ -158,7 +158,7 @@ Image upload POST request handler
 */
 app.route("/uploadImage")
   .post(function (req, res, next){
-    console.log('POST recieved to /uploadImage');
+    console.log('POST received to /uploadImage');
     if(!req.files || Object.keys(req.files).lenghth === 0 ){
       console.log("File not received");
       return res.status(400).send();
@@ -211,7 +211,7 @@ Image download POST request handler
 */
 app.route('/userImages')
   .post(function(req, res, next){
-    console.log('POST recieved to /userImages');
+    console.log('POST received to /userImages');
     let sql = `SELECT * 
       FROM photos 
       LEFT OUTER JOIN users ON photos.USER_ID=users.USER_ID 
@@ -232,7 +232,7 @@ User search POST request handler
 */
 app.route('/userSearch')
   .post(function(req, res, next){
-    console.log("POST recieved to /userSearch");
+    console.log("POST received to /userSearch");
     let sql= '';
     if(req.body['by_ID'] == 0){
       if(req.body['exact_match'] == 0){
@@ -264,7 +264,7 @@ User Friends POST request handler
 */
 app.route('/userFriends')
   .post(function(req, res, next){
-    console.log('POST recieved to /userFriends');
+    console.log('POST received to /userFriends');
     let sql = `SELECT * 
       FROM users
       WHERE RequesterID = ${req.body['USER_ID']}
@@ -277,6 +277,38 @@ app.route('/userFriends')
       console.log(row);
       res.send(row);
     });
+  });
+
+/* 
+User Friend Request POST request handler
+*/
+app.route('/friendRequest')
+  .post(function(req, res, next){
+    console.log('POST received to /friendRequest');
+    let sql = `SELECT * FROM friendships 
+      WHERE RequesterID=${req.body[USER_ID]}
+      AND AddresseeID=${req.body[AddresseeID]}`;
+    pool.query(sql, function(err, row){
+      if(err){
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      if(row[0] == undefined){
+        sql = `INSERT INTO friendships(RequesterID, AddresseeID, CreationDateTime, Status)
+        VALUES(${req.body[USER_ID]}, ${req.body[AddresseeID]}, ${new Date().toISOString().slice(0, 19).replace('T', ' ')}, 0})`;
+        pool.query(sql, function(err, row){
+          if(err){
+            res.status(500).send(err);
+            return console.error(err.message);
+          }
+          console.log('Friend request created successfully');
+          res.send("Friend Request Sent!");
+        });
+      } else {
+        res.send("Friend Request Already Sent");
+      }
+    });
+
   });
 var server = app.listen(3000);
 console.log("Listening...");
