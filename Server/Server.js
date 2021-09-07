@@ -316,7 +316,7 @@ app.route('/friendRequest')
   });
 
 /*
-Addressee friend Request POST request handler
+Addressee friend Requests POST request handler
 */
 app.route('/friendRequests')
   .post(function (req, res, next) {
@@ -335,8 +335,26 @@ app.route('/friendRequests')
     });
   });
 
+/*
+Pending Friend Requests POST request handler
+*/
+app.route('/pendingFriendRequests')
+  .post(function (req, res, next) {
+    console.log('POST received to /pendingFriendRequests');
+    let sql = `SELECT * 
+    FROM users
+    WHERE RequesterID = ${req.body['USER_ID']}
+    AND Status = 0`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
 
-
-
+  
 var server = app.listen(3000);
 console.log("Listening...");
