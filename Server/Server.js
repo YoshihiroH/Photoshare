@@ -309,7 +309,11 @@ app.route('/friendRequest')
           res.send("Friend Request Sent!");
         });
       } else {
-        res.send("Friend Request Already Sent");
+        if (row[0].Status == 1) {
+          res.send('User is Already Added to Friends List')
+        } else {
+          res.send("Friend Request Already Sent");
+        }
       }
     });
 
@@ -355,6 +359,39 @@ app.route('/pendingFriendRequests')
     });
   });
 
-  
+/* 
+User Friend Request Accept POST request handler
+*/
+app.route('/acceptFriendRequest')
+  .post(function (req, res, next) {
+    console.log('POST received to /acceptFriendRequest');
+    let sql = `SELECT * FROM friendships 
+      WHERE RequesterID=${req.body[USER_ID]}
+      AND AddresseeID=${req.body[AddresseeID]}`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      if (row[0].Status == 0) {
+        sql = `UPDATE friendships
+          SET Status=1
+          WHERE RequesterID=${req.body[USER_ID]}
+          AND AddresseeID=${req.body[AddresseeID]}`;
+        pool.query(sql, function (err, row) {
+          if (err) {
+            res.status(500).send(err);
+            return console.error(err.message);
+          }
+          console.log('Friendship created');
+          res.send("Friend Added!");
+        });
+      } else {
+        res.send("User Already Added to Friends List");
+      }
+    });
+
+  });
+
 var server = app.listen(3000);
 console.log("Listening...");
