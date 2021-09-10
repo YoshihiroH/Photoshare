@@ -17,7 +17,6 @@ var pool = mysql.createPool({
   database: 'Photoshare'
 });
 
-
 //Wrapped the db.open
 let opendb = () => {
   pool.connect((err) => {
@@ -53,7 +52,6 @@ app.use(express.urlencoded({
   extended: true
 })) // for parsing application/x-www-form-urlencoded
 app.use(fileUpload());
-
 
 /*
 Request Test
@@ -209,7 +207,6 @@ app.route('/uploadAvatar')
     });
   });
 
-
 /*
 Image download POST request handler
 */
@@ -270,7 +267,7 @@ app.route('/userFriends')
   .post(function (req, res, next) {
     console.log('POST received to /userFriends');
     let sql = `SELECT * 
-      FROM users
+      FROM friendships
       WHERE RequesterID = ${req.body['USER_ID']}
       AND Status = 1`;
     pool.query(sql, function (err, row) {
@@ -290,17 +287,22 @@ app.route('/friendRequest')
   .post(function (req, res, next) {
     console.log('POST received to /friendRequest');
     let sql = `SELECT * FROM friendships 
-      WHERE RequesterID=${req.body[USER_ID]}
-      AND AddresseeID=${req.body[AddresseeID]}`;
+      WHERE RequesterID=${req.body['USER_ID']}
+      AND AddresseeID=${req.body['AddresseeID']}`;
     pool.query(sql, function (err, row) {
       if (err) {
         res.status(500).send(err);
         return console.error(err.message);
       }
       if (row[0] == undefined) {
-        sql = `INSERT INTO friendships(RequesterID, AddresseeID, CreationDateTime, Status)
-        VALUES(${req.body[USER_ID]}, ${req.body[AddresseeID]}, ${new Date().toISOString().slice(0, 19).replace('T', ' ')}, 0})`;
-        pool.query(sql, function (err, row) {
+        var query = "INSERT INTO friendships SET ?", 
+          values = {
+            RequesterID: req.body['USER_ID'],
+            AddresseeID: req.body['AddresseeID'],
+            CreationDateTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            Status: 0
+        };
+        pool.query(query, values, function (err, row) {
           if (err) {
             res.status(500).send(err);
             return console.error(err.message);
@@ -316,7 +318,6 @@ app.route('/friendRequest')
         }
       }
     });
-
   });
 
 /*
@@ -326,7 +327,7 @@ app.route('/friendRequests')
   .post(function (req, res, next) {
     console.log('POST received to /friendRequests');
     let sql = `SELECT * 
-    FROM users
+    FROM friendships
     WHERE AddresseeID = ${req.body['USER_ID']}
     AND Status = 0`;
     pool.query(sql, function (err, row) {
@@ -346,7 +347,7 @@ app.route('/pendingFriendRequests')
   .post(function (req, res, next) {
     console.log('POST received to /pendingFriendRequests');
     let sql = `SELECT * 
-    FROM users
+    FROM friendships
     WHERE RequesterID = ${req.body['USER_ID']}
     AND Status = 0`;
     pool.query(sql, function (err, row) {
@@ -366,8 +367,8 @@ app.route('/acceptFriendRequest')
   .post(function (req, res, next) {
     console.log('POST received to /acceptFriendRequest');
     let sql = `SELECT * FROM friendships 
-      WHERE RequesterID=${req.body[USER_ID]}
-      AND AddresseeID=${req.body[AddresseeID]}`;
+      WHERE RequesterID=${req.body['USER_ID']}
+      AND AddresseeID=${req.body['AddresseeID']}`;
     pool.query(sql, function (err, row) {
       if (err) {
         res.status(500).send(err);
@@ -376,21 +377,33 @@ app.route('/acceptFriendRequest')
       if (row[0].Status == 0) {
         sql = `UPDATE friendships
           SET Status=1
-          WHERE RequesterID=${req.body[USER_ID]}
-          AND AddresseeID=${req.body[AddresseeID]}`;
+          WHERE RequesterID=${req.body['USER_ID']}
+          AND AddresseeID=${req.body['AddresseeID']}`;
         pool.query(sql, function (err, row) {
           if (err) {
             res.status(500).send(err);
             return console.error(err.message);
           }
-          console.log('Friendship created');
-          res.send("Friend Added!");
+          sql  = "INSERT INTO friendships SET ?", 
+          values = {
+            RequesterID: req.body['AddresseeID'],
+            AddresseeID: req.body['USER_ID'],
+            CreationDateTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            Status: 1
+          };
+          pool.query(sql, values,function(err, row){
+            if(err) {
+              res.status(500).send(err);
+              return console.error(err.message);
+            }
+            console.log('Friendship created');
+            res.send("Friend Added!");
+          });
         });
       } else {
         res.send("User Already Added to Friends List");
       }
     });
-
   });
 
 var server = app.listen(3000);

@@ -14,12 +14,7 @@ let API_URL = "http://127.0.0.1:3000";
 
 var imageIndex;
 
-
-
-
-
 $(document).ready(function () {
-
 
   //Helper  
   function eraseCookieFromAllPaths(name) {
@@ -49,12 +44,55 @@ $(document).ready(function () {
 
   //Homepage Loading Handlers
 
+
+
   //ID getter from cookies
+  
   let id = getCookie("id");
   console.log(id);
   if (id == null) {
     window.location.replace(`${CURRENT_PATH}/html/index.html`);
   }
+
+  //Friends variable declaration
+  var friends;
+  var pendingFriends;
+  var friendRequests;
+  let tempFD = new FormData();
+  tempFD.append('USER_ID', id);
+  $.ajax({
+    url: `${API_URL}/userFriends`,
+    type: 'POST',
+    data: tempFD,
+    processData: false,
+    contentType: false,
+    success: function (data) {
+      friends = data;
+    },
+    error: function(data){}
+  });
+  $.ajax({
+    url: `${API_URL}/pendingFriendRequests`,
+    type: 'POST',
+    data: tempFD,
+    processData: false,
+    contentType: false,
+    success: function (data) {
+      pendingFriends = data;
+    },
+    error: function(data){}
+  });
+  $.ajax({
+    url: `${API_URL}/friendRequests`,
+    type: 'POST',
+    data: tempFD,
+    processData: false,
+    contentType: false,
+    success: function (data) {
+      friendRequests = data;
+    },
+    error: function(data){}
+  });
 
   //Request for Users uploads by index
   function userImages(index) {
@@ -89,8 +127,6 @@ $(document).ready(function () {
     window.location.replace(`${CURRENT_PATH}/html/index.html`);
   });
 
-
-
   //Upload Modal Event Handlers
 
   //Show upload modal
@@ -100,7 +136,6 @@ $(document).ready(function () {
         $('#uploadModalView').show('slow');
       });
     });
-
   });
 
   //Hide upload modal
@@ -177,8 +212,6 @@ $(document).ready(function () {
     })
   });
 
-
-
   //Search Modal Handlers
 
   //Show search modal
@@ -198,6 +231,41 @@ $(document).ready(function () {
     $('#userPreviewView').empty();
   });
 
+  //Add Friend handler
+  let addFriend = function (addresseeID) {
+    var formData = new FormData();
+    formData.append('USER_ID', id);
+    formData.append('AddresseeID', addresseeID);
+    $.ajax({
+      url: `${API_URL}/friendRequest`,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+        $('#addButton').remove();
+      },
+      error: function (data) {}
+    });
+  }
+
+  //Accept Friend Handler
+  let acceptFriend = function(addresseeID){
+    var formData = new FormData();
+    formData.append('USER_ID', addresseeID);
+    formData.append('AddresseeID', id);
+    $.ajax({
+      url: `${API_URL}/acceptFriendRequest`,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+        $('#acceptFriendRequestButton').remove();
+      },
+      error: function (data) {}
+    });
+  }
 
   //User preview click handler
   let userPreviewOnClick = function (event) {
@@ -223,6 +291,9 @@ $(document).ready(function () {
             $('#avatar').attr('src', "/assets/avatar-placeholder.jpeg");
           }
           $('#avatarButton').remove();
+          $('#acceptFriendRequestButton').remove();
+          $('#friendStatusMessage').remove();
+          $('#addButton').remove();
           if (!$('#avatarButton').length) {
             if (id == data[0].USER_ID) {
               $('.profileView').append('<button id="avatarButton">Change Profile Picture</button>');
@@ -233,10 +304,50 @@ $(document).ready(function () {
                   });
                 });
               });
+            } else {
+              console.log(data[0].USER_ID)
+              var flag = 0;
+              if (friends != undefined) {
+                for (var i = 0; i < friends.length; i++) {
+                  console.log(friends[i].AddresseeID);
+                  if (friends[i].AddresseeID == data[0].USER_ID) {
+                    flag = 1;
+                  }
+                }
+              }
+              if (pendingFriends != undefined) {
+                for (var i = 0; i < pendingFriends.length; i++) {
+                  if (pendingFriends[i].AddresseeID == data[0].USER_ID) {
+                    flag = 2;
+                  }
+                }
+              }
+              if (friendRequests != undefined) {
+                for (var i = 0; i < friendRequests.length; i++) {
+                  console.log(friendRequests[i].RequesterID)
+                  console.log(data[0].USER_ID)
+                  if (friendRequests[i].RequesterID == data[0].USER_ID) {
+                    flag = 3;
+                  }
+                }
+              }
+              console.log(flag)
+              if (flag == 0) {
+                $('.profileView').append('<button id="addButton">Add Friend</button>');
+                $('#addButton').click(function(){
+                  addFriend(data[0].USER_ID)
+                  $('.profileView').append('<label id="friendStatusMessage">Pending</label>')
+                });
+              } else if (flag == 2 ){
+                $('.profileView').append('<label id="friendStatusMessage">Pending</label>')
+              } else if (flag == 3){
+                $('.profileView').append('<button id="acceptFriendRequestButton">Accept Friend Request</button>')
+                $('#acceptFriendRequestButton').click(function(){
+                  acceptFriend(data[0].USER_ID);
+                });
+              }
             }
           }
-
-
           $('#usernameLabel').text(data[0].USERNAME);
           $('.profile-page').show("slow");
         });
@@ -287,7 +398,6 @@ $(document).ready(function () {
             sum++;
           }
         }
-
         if (sum > 0) {
           $("#userPreviewView").show("slow");
         }
@@ -336,6 +446,7 @@ $(document).ready(function () {
       error: function (data) {}
     });
   });
+  
   // Profile Return to home page event handler
   $('#homeHeaderButton').click(function (event) {
     $('.homeHeader').hide(0, function () {
@@ -347,12 +458,6 @@ $(document).ready(function () {
     });
   });
 
-
-
-
-
-
-
   //Homepage event handler
 
   //request more user images
@@ -363,8 +468,4 @@ $(document).ready(function () {
 
   //request users recent images
   userImages(imageIndex = 0);
-
-
-
-
 });
