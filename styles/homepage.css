@@ -52,7 +52,7 @@ img {
 }
 
 .header > div{
-  width: calc(100%/4);
+  width: calc(100%/5);
 }
 
 @media (max-width: 768px){
@@ -62,7 +62,7 @@ img {
   }
 }
 
-#searchView {
+#searchView, #friendsView{
   position: relative;
   z-index: 1;
   background: #FFFFFF;
@@ -125,7 +125,6 @@ img {
   background: #FFFFFF;
   max-width: 360px;
   margin: 0 auto 100px;
-
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 }

@@ -19,6 +19,9 @@
     <div class="profileHeader">
       <button id="profileHeaderButton">My Profile</button>
     </div>
+    <div class="friendsHeader">
+      <button id="friendsHeaderButton">Friends</button>
+    </div>
     <div class="searchHeader">
       <button id="searchHeaderButton">Search</button>
     </div>
@@ -66,8 +69,16 @@
       
     </div>
   </div>
-  
 
+  <!-- Friends Modal-->
+  <div id="friendsModalView" class="modal" hidden data-closeable>
+    <div id="friendsView">
+      <button id="friendsModalCloseButton" class="modal-close-button" aria-label="Close alert" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div id="friendsPreviewView"></div>
+    </div>
+  </div>
 
 
 

@@ -406,5 +406,24 @@ app.route('/acceptFriendRequest')
     });
   });
 
+app.route('/unfriend')
+  .post(function(req, res, next){
+    console.log('POST recieved to /unfriend');
+    var sql = `DELETE FROM friendships 
+      WHERE (RequesterID=${req.body['USER_ID']}
+      AND AddresseeID=${req.body['AddresseeID']})
+      OR (RequesterID=${req.body['AddresseeID']}
+      AND AddresseeID=${req.body['USER_ID']})`;
+    pool.query(sql, function(err, row){
+      if(err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log('Unfriended');
+      res.send('Friend removed');
+    });
+  });
+
+
 var server = app.listen(3000);
 console.log("Listening...");

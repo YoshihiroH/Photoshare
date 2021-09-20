@@ -446,7 +446,7 @@ $(document).ready(function () {
       error: function (data) {}
     });
   });
-  
+
   // Profile Return to home page event handler
   $('#homeHeaderButton').click(function (event) {
     $('.homeHeader').hide(0, function () {
@@ -456,6 +456,18 @@ $(document).ready(function () {
         });
       });
     });
+  });
+
+  // Friends modal event handler
+  $('#friendsHeaderButton').click(function(event){
+    $('#friendsModalView').show(function(){
+
+    });
+  });
+  
+  //Friends modal hide 
+  $('#friendsModalCloseButton').click(function () {
+    $('#friendsModalView').hide('slow');
   });
 
   //Homepage event handler
