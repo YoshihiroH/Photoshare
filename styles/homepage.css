@@ -24,7 +24,7 @@ img {
   width: 100%;
 }
 
-#uploadModalView {
+.modal{
   /* display: none; /* Hidden by default */
   position: fixed;
   /* Stay in place */
@@ -46,18 +46,90 @@ img {
   /* Black w/ opacity */
 }
 
+.header{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header > div{
+  width: calc(100%/5);
+}
+
+@media (max-width: 768px){
+  .header-section > div {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+#searchView, #friendsView{
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  max-width: 360px;
+  margin: 0 auto 100px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
+.userPreview {
+  padding:20px;
+  margin: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  border: black;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  clear: both;
+  cursor: pointer;
+}
+
+.iconView {
+  width: calc(100%/3);
+}
+
+.icon {
+  width: 50px;
+  height:50px;
+  
+}
+
+.profileView {
+  display: table;
+  clear: both;
+  padding:10%;
+}
+
+.avatarView{
+  float:left;
+  width:30%;
+  height: 100%;
+  max-width: 200px;
+  max-height: 200px;
+}
+#avatarButton {
+  max-width: 200px;
+}
+
+.detailsView{
+  float: left;
+  width: 70%;
+  height: 100%;
+}
+#usernameLabel {
+  text-align: right;
+}
+
 #uploadView {
   position: relative;
   z-index: 1;
   background: #FFFFFF;
   max-width: 360px;
   margin: 0 auto 100px;
-
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 }
 
-#uploadView #uploadModalCloseButton {
+.modal-close-button {
   height: 10%;
   width: 10%;
   background: #FFFFFF;
@@ -67,43 +139,12 @@ img {
   margin: 10px;
 }
 
-#uploadForm {
+.modal-form {
   padding: 35px;
 }
 
-#uploadView input {
-  font-family: "Roboto", sans-serif;
-  text-transform: uppercase;
-  outline: 0;
-  background: #4CAF50;
-  width: 100%;
-  border: 0;
-  padding: 15px;
-  color: #FFFFFF;
-  font-size: 14px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
-  cursor: pointer;
-}
-
-#uploadView #uploadImage {
-  font-family: "Roboto", sans-serif;
-  text-transform: uppercase;
-  outline: 0;
-  background: #4CAF50;
-  max-width: 89.7%;
-  border: 0;
-  padding: 15px;
-  color: #FFFFFF;
-  font-size: 14px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
-  cursor: pointer;
-}
-
-#uploadView #uploadTitle {
-  color: white;
-  max-width: 89.7%;
+input {
+  margin: 15px;
 }
 
 button {
@@ -119,6 +160,20 @@ button {
   -webkit-transition: all 0.3 ease;
   transition: all 0.3 ease;
   cursor: pointer;
+}
+
+.profileView label {
+  font-family: "Roboto", sans-serif;
+  text-transform: uppercase;
+  outline: 0;
+  background: #4CAF50;
+  width: 100%;
+  border: 0;
+  padding: 15px;
+  color: #FFFFFF;
+  font-size: 14px;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.3 ease;
 }
 
 .form button:hover,

@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const multer = require('multer')
+const upload = multer({
+  dest: 'uploads/'
+})
 require('dotenv').config();
 const fileUpload = require('express-fileupload');
 var app = express();
@@ -14,7 +16,6 @@ var pool = mysql.createPool({
   password: process.env.DB_PASS,
   database: 'Photoshare'
 });
-
 
 //Wrapped the db.open
 let opendb = () => {
@@ -40,14 +41,10 @@ let closedb = () => {
   });
 }
 
-
-
-
 function hashCode(str) {
   return str.split('').reduce((prevHash, currVal) =>
     (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);
 }
-
 
 app.use(cors());
 app.use(express.json()) // for parsing application/json
@@ -55,7 +52,6 @@ app.use(express.urlencoded({
   extended: true
 })) // for parsing application/x-www-form-urlencoded
 app.use(fileUpload());
-
 
 /*
 Request Test
@@ -69,8 +65,7 @@ app.route("/")
     console.log("GET received on /");
     res.send('GET request to homepage');
     next();
-  })
-
+  });
 
 /*
 Credential verification POST request handler
@@ -78,30 +73,41 @@ returns user id if user has been successfully created returns 0 otherwise
 */
 app.route("/user")
   .post(function (req, res, next) {
-    console.log("POST recieved to /user");
-
+    console.log("POST received to /user");
     let credentials = req.body;
-    let sql = `SELECT USER_ID, USERNAME, PASSWORD
-    FROM users
-    WHERE USERNAME = "${credentials.user}"
-    AND  PASSWORD  = "${credentials.password}"`;
-
+    let sql = `SELECT USER_ID
+      FROM users
+      WHERE USERNAME = "${credentials.user}"`;
     //execute querys
     pool.query(sql, (err, row) => {
       if (err) {
         res.status(500).send(err);
         return console.error(err.message);
       }
-      if(row.length){
-        console.log("User found : Returning User ID");
+      if (row.length) {
+        console.log("User found : confirming pasword");
         console.log(row[0].USER_ID);
-  
-        res.json(row[0].USER_ID);
+        let sql = `SELECT USER_ID
+          FROM credentials
+          WHERE PASSWORD = "${credentials.password}"
+          AND USER_ID =${row[0].USER_ID}`;
+        pool.query(sql, function (err, row) {
+          if (err) {
+            res.status(500).send(err);
+            console.error(err.message);
+          }
+          if (row.length) {
+            console.log("Password Matched : Returning User ID");
+            res.json(row[0].USER_ID);
+          } else {
+            console.log("Password not matching");
+            res.json(0);
+          }
+        });
       } else {
+        console.log("User not found");
         res.json(0);
       }
-
-
     })
   });
 
@@ -111,12 +117,12 @@ returns user id if user has been successfully created returns 0 otherwise
 */
 app.route("/createUser")
   .post(function (req, res, next) {
-    console.log("POST recieved to /createUser");
+    console.log("POST received to /createUser");
     let credentials = req.body;
     let userId = hashCode(credentials.user);
     let sql = `SELECT USER_ID
-    FROM users
-    WHERE USER_ID = "${userId}"`;
+      FROM users
+     WHERE USER_ID = "${userId}"`;
     pool.query(sql, (err, row) => {
       if (err) {
         res.status(500).send(err);
@@ -124,11 +130,20 @@ app.route("/createUser")
       }
       if (row[0] == undefined) {
         console.log("User not found : Creating new user");
-        let sql = `INSERT INTO users(USER_ID, USERNAME, PASSWORD)
-        VALUES (${userId}, "${credentials.user}", "${credentials.password}")`;
+        let sql = `INSERT INTO users(USER_ID, USERNAME)
+          VALUES (${userId},"${credentials.user}")`;
         pool.query(sql, (err) => {
           if (err) {
             return console.error(err.message);
+          } else {
+            console.log("Saving Credentials");
+            let sql = `INSERT INTO credentials(USER_ID, PASSWORD)
+              VALUES (${userId},"${credentials.password}")`;
+            pool.query(sql, function (err) {
+              if (err) {
+                return console.error(err.message);
+              }
+            });
           }
         });
         res.json(userId);
@@ -139,49 +154,71 @@ app.route("/createUser")
   });
 
 /*
-Image uplaod POST request handler
+Image upload POST request handler
 */
 app.route("/uploadImage")
-  .post(function (req, res, next){
-    console.log('POST recieved to /uploadImage');
-    if(!req.files || Object.keys(req.files).lenghth === 0 ){
+  .post(function (req, res, next) {
+    console.log('POST received to /uploadImage');
+    if (!req.files || Object.keys(req.files).lenghth === 0) {
       console.log("File not received");
       return res.status(400).send();
     }
     let buffer = Buffer.from(req.files['data']['data']);
     let arraybuffer = Uint8Array.from(buffer).buffer;
-    var query = "INSERT INTO photos SET ?", values = {
-        USER_ID:req.body['USER_ID'],
+    var query = "INSERT INTO photos SET ?",
+      values = {
+        USER_ID: req.body['USER_ID'],
         IMAGE: buffer,
-        TITLE:req.body['Title'],
+        TITLE: req.body['Title'],
         DATE: new Date().toISOString().slice(0, 19).replace('T', ' ')
       };
-    pool.query(query,values,(err) =>{
+    pool.query(query, values, (err) => {
       if (err) {
         res.status(500).send(err);
         return console.error(err.message);
       }
-
-      
-      
       console.log("Upload successful");
       res.send("Success");
     });
   });
 
+/*
+Avatar upload POST request Handler
+*/
+app.route('/uploadAvatar')
+  .post(function (req, res, next) {
+    if (!req.files || Object.keys(req.files).lenghth === 0) {
+      console.log("File not received");
+      return res.status(400).send();
+    }
+    let buffer = Buffer.from(req.files['data']['data']);
+    let arraybuffer = Uint8Array.from(buffer).buffer;
+    var sql = `UPDATE users SET ? WHERE USER_ID=${req.body['USER_ID']}`,
+      values = {
+        avatar: buffer
+      };
+    pool.query(sql, values, (err) => {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log("Upload successful");
+      res.send("Success");
+    });
+  });
 
 /*
-Image download Get request handler
+Image download POST request handler
 */
 app.route('/userImages')
-  .post(function(req, res, next){
-    console.log('GET recieved to /userImages');
+  .post(function (req, res, next) {
+    console.log('POST received to /userImages');
     let sql = `SELECT * 
-    FROM photos 
-    LEFT OUTER JOIN users ON photos.USER_ID=users.USER_ID 
-    ORDER BY DATE 
-    DESC LIMIT ${req.body['INDEX']},3;`
-    pool.query(sql ,(err,row) => {
+      FROM photos 
+      LEFT OUTER JOIN users ON photos.USER_ID=users.USER_ID 
+      ORDER BY DATE 
+      DESC LIMIT ${req.body['INDEX']},3;`
+    pool.query(sql, (err, row) => {
       if (err) {
         res.status(500).send(err);
         return console.error(err.message);
@@ -191,8 +228,201 @@ app.route('/userImages')
     });
   });
 
+/*
+User search POST request handler
+*/
+app.route('/userSearch')
+  .post(function (req, res, next) {
+    console.log("POST received to /userSearch");
+    let sql = '';
+    if (req.body['by_ID'] == 0) {
+      if (req.body['exact_match'] == 0) {
+        sql = `SELECT * 
+          FROM users
+          WHERE soundex(username) = soundex("${req.body['username']}")`;
+      } else {
+        sql = `SELECT * 
+          FROM users
+          WHERE username="${req.body['username']}"`;
+      }
+    } else {
+      sql = `SELECT * 
+          FROM users
+          WHERE USER_ID = "${req.body['USER_ID']}"`;
+    }
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
 
+/*
+User Friends POST request handler
+*/
+app.route('/userFriends')
+  .post(function (req, res, next) {
+    console.log('POST received to /userFriends');
+    let sql = `SELECT * 
+      FROM friendships
+      WHERE RequesterID = ${req.body['USER_ID']}
+      AND Status = 1`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
 
+/* 
+User Friend Request POST request handler
+*/
+app.route('/friendRequest')
+  .post(function (req, res, next) {
+    console.log('POST received to /friendRequest');
+    let sql = `SELECT * FROM friendships 
+      WHERE RequesterID=${req.body['USER_ID']}
+      AND AddresseeID=${req.body['AddresseeID']}`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      if (row[0] == undefined) {
+        var query = "INSERT INTO friendships SET ?", 
+          values = {
+            RequesterID: req.body['USER_ID'],
+            AddresseeID: req.body['AddresseeID'],
+            CreationDateTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            Status: 0
+        };
+        pool.query(query, values, function (err, row) {
+          if (err) {
+            res.status(500).send(err);
+            return console.error(err.message);
+          }
+          console.log('Friend request created successfully');
+          res.send("Friend Request Sent!");
+        });
+      } else {
+        if (row[0].Status == 1) {
+          res.send('User is Already Added to Friends List')
+        } else {
+          res.send("Friend Request Already Sent");
+        }
+      }
+    });
+  });
+
+/*
+Addressee friend Requests POST request handler
+*/
+app.route('/friendRequests')
+  .post(function (req, res, next) {
+    console.log('POST received to /friendRequests');
+    let sql = `SELECT * 
+    FROM friendships
+    WHERE AddresseeID = ${req.body['USER_ID']}
+    AND Status = 0`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
+
+/*
+Pending Friend Requests POST request handler
+*/
+app.route('/pendingFriendRequests')
+  .post(function (req, res, next) {
+    console.log('POST received to /pendingFriendRequests');
+    let sql = `SELECT * 
+    FROM friendships
+    WHERE RequesterID = ${req.body['USER_ID']}
+    AND Status = 0`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log(row);
+      res.send(row);
+    });
+  });
+
+/* 
+User Friend Request Accept POST request handler
+*/
+app.route('/acceptFriendRequest')
+  .post(function (req, res, next) {
+    console.log('POST received to /acceptFriendRequest');
+    let sql = `SELECT * FROM friendships 
+      WHERE RequesterID=${req.body['USER_ID']}
+      AND AddresseeID=${req.body['AddresseeID']}`;
+    pool.query(sql, function (err, row) {
+      if (err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      if (row[0].Status == 0) {
+        sql = `UPDATE friendships
+          SET Status=1
+          WHERE RequesterID=${req.body['USER_ID']}
+          AND AddresseeID=${req.body['AddresseeID']}`;
+        pool.query(sql, function (err, row) {
+          if (err) {
+            res.status(500).send(err);
+            return console.error(err.message);
+          }
+          sql  = "INSERT INTO friendships SET ?", 
+          values = {
+            RequesterID: req.body['AddresseeID'],
+            AddresseeID: req.body['USER_ID'],
+            CreationDateTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            Status: 1
+          };
+          pool.query(sql, values,function(err, row){
+            if(err) {
+              res.status(500).send(err);
+              return console.error(err.message);
+            }
+            console.log('Friendship created');
+            res.send("Friend Added!");
+          });
+        });
+      } else {
+        res.send("User Already Added to Friends List");
+      }
+    });
+  });
+
+app.route('/unfriend')
+  .post(function(req, res, next){
+    console.log('POST recieved to /unfriend');
+    var sql = `DELETE FROM friendships 
+      WHERE (RequesterID=${req.body['USER_ID']}
+      AND AddresseeID=${req.body['AddresseeID']})
+      OR (RequesterID=${req.body['AddresseeID']}
+      AND AddresseeID=${req.body['USER_ID']})`;
+    pool.query(sql, function(err, row){
+      if(err) {
+        res.status(500).send(err);
+        return console.error(err.message);
+      }
+      console.log('Unfriended');
+      res.send('Friend removed');
+    });
+  });
 
 
 var server = app.listen(3000);

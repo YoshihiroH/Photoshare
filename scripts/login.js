@@ -20,6 +20,7 @@ $(document).ready(function() {
     window.location.replace(`${CURRENT_PATH}/html/homepage.html`);
   }
 
+  //Switch forms 
   $('.message a').click(function(event) {
     event.preventDefault();
     $('form').animate({
@@ -29,11 +30,11 @@ $(document).ready(function() {
     console.log(document.getElementById("createButton"));
   });
 
+  //Create user button handler
   $('#createButton').click(function(event) {
     event.preventDefault();
     let user = $("#registerUsernameInput").val();
     let password = hashCode($("#registerPasswordInput").val());
-
     let credentials = {
       user: user,
       password: password
@@ -54,6 +55,7 @@ $(document).ready(function() {
     }
   });
 
+  //Login button handler 
   $('#loginButton').click(function(event) {
     event.preventDefault();
     let user = $("#loginUsernameInput").val();
@@ -67,8 +69,6 @@ $(document).ready(function() {
     console.log('/user');
     $.post(`${API_URL}/user`, credentials, function(data, status) {
       
-     // console.log(data);
-     // console.log(status);
       if (data == EMPTY) {
         $(".error").remove();
         $(".login-form").append('<p class="error">Account does not exist or password is incorrect</p>');

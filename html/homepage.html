@@ -4,18 +4,48 @@
 <head>
   <title>Home</title>
   <link rel="stylesheet" type="text/css" href="../styles/homepage.css">
-  <button id="logoutButton">Logout</button>
-  <button id="uploadButton">Upload</button>
-  <div id="uploadModalView" hidden data-closeable>
+
+  <!-- Header Sections -->
+  <div class="header">
+    <div class="logoutHeader">
+      <button id="logoutHeaderButton">Logout</button>
+    </div>
+    <div class="uploadHeader">
+      <button id="uploadHeaderButton">Upload</button>
+    </div>
+    <div class="homeHeader" hidden>
+      <button id="homeHeaderButton">Home</button>
+    </div>
+    <div class="profileHeader">
+      <button id="profileHeaderButton">My Profile</button>
+    </div>
+    <div class="friendsHeader">
+      <button id="friendsHeaderButton">Friends</button>
+    </div>
+    <div class="searchHeader">
+      <button id="searchHeaderButton">Search</button>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="uploadModalView" class="modal" hidden data-closeable>
     <div id="uploadView">
-      <button id="uploadModalCloseButton"class="close-button" aria-label="Close alert" type="button" data-close>
+      <button id="uploadModalCloseButton" class="modal-close-button" aria-label="Close alert" type="button" data-close>
         <span aria-hidden="true">&times;</span>
       </button>
-      <form encType="multipart/form-data" id="uploadForm">
+      <form encType="multipart/form-data"  class="modal-form" id="uploadForm">
         <img id='imagePreview'/>
+        <label for="uploadImage">Choose your picture!</label>
         <input type="file" id="uploadImage" name="uploadImage" accept="image/*"> 
-        <input type="text" id="uploadTitle" name="uploadTitle" placeholder="Name your picture!">
-        <input type="submit" id="uploadSubmitButton">
+        <label for="uploadTitle">Name your picture!</label>
+        <input type="text" id="uploadTitle" name="uploadTitle">
+        <button id="uploadSubmitButton">Submit</button>
+      </form>
+      <form encType="multipart/form-data"  class="modal-form" id="uploadAvatarForm" hidden>
+        <img id='avatarPreview'/>
+        <label for="uploadAvatar">Choose your picture!</label>
+        <input type="file" id="uploadAvatar" name="uploadAvatar" accept="image/*"> 
+        <button id="uploadAvatarSubmitButton">Submit</button>
       </form>
       <span id="uploadSuccessMessage" hidden>Upload Successful!</span>
       <span id="uploadErrorMessage" hidden>Error encountered while uploading
@@ -23,24 +53,64 @@
       </span>
     </div>
   </div>
+
+  <!-- Search Modal -->
+  <div id="searchModalView" class="modal" hidden data-closeable>
+    <div id="searchView">
+      <button id="searchModalCloseButton" class="modal-close-button" aria-label="Close alert" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div id="userPreviewView" hidden></div>
+      <form encType="multipart/form-data" class="modal-form" id="searchForm">
+        <label for="searchText">Search for user</label>
+        <input type="search" id="searchText" name="user">
+        <button id="searchSubmitButton">Search</button>
+      </form>
+      
+    </div>
+  </div>
+
+  <!-- Friends Modal-->
+  <div id="friendsModalView" class="modal" hidden data-closeable>
+    <div id="friendsView">
+      <button id="friendsModalCloseButton" class="modal-close-button" aria-label="Close alert" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div id="friendsPreviewView"></div>
+    </div>
+  </div>
+
+
+
+
+
 </head>
 
 <body>
   
   <div class="home-page">
-
-
-    <div class="feedView">
-
-    </div>
-
+    <div class="feedView"></div>
     <button id="nextButton">Next</button>
-
   </div>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="../scripts/homepage.js" type="text/javascript"></script>
+  <div class="profile-page" hidden>
+    <div class="profileView">
+      <div class="avatarView">
+        <img id="avatar"></img>
+      </div>
+      <div class="detailsView">
+        <h1 id="usernameLabel"></h1>
+      </div>
+    </div>
+  </div>
+
 
 </body>
+<footer>
 
+</footer>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../scripts/homepage.js" type="text/javascript"></script>
 
 </html>
